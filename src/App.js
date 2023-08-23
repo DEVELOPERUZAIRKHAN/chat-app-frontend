@@ -8,18 +8,39 @@ import { Events } from "./components/Events";
 import { BrowserRouter,Route,Routes } from "react-router-dom";
 import Singup from "./pages/Signup/Signup";
 import Login from "./pages/Login/Login";
+import Chat from "./pages/Chat/Chat";
+import { signup } from "./api/internal";
 function App() {
 
   const [isConnected, setIsConnected] = useState(socket.connected)
   const [fooEvents,setFooEvents] = useState([])
   const [value,setValue] = useState('')
+  const [loginVal,setLoginVal]= useState('')
+  const [nameResponse,setNameResponse] = useState({})
   const handleSignupChange=(e)=>{
     setValue(e.target.value)
   }
 
+  const handleLoginChange=(e)=>{
+    setLoginVal(e.target.value)
+  }
 
-  const handleSubmit=()=>{
-    
+  const handleSubmit= async (e)=>{
+    e.preventDefault()
+    let data={
+      username:value,
+    }
+    let response;
+    try{
+      response = await signup(data)
+      console.log(response)
+    }catch(error){
+      console.log(error)
+    }
+
+  }
+  const handleLogin=(e)=>{
+    e.preventDefault()
   }
   useEffect(() => {
     function onConnect(){
@@ -39,6 +60,7 @@ function App() {
       socket.off('connect',onConnect)
       socket.off('disconnect',onDisconnect)
       socket.off('foo',onFooEvent)
+      setNameResponse({})
     }
   }, [])
   
@@ -52,7 +74,10 @@ function App() {
           } />
 
           <Route path='/login' exact element={
-          <Login />
+          <Login onSubmit={handleLogin} value={loginVal} onChange={handleLoginChange} />
+          } />
+          <Route path='/chat' exact element={
+          <Chat />
           } />
 
         </Routes>
